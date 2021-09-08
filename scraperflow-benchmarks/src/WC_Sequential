@@ -1,0 +1,44 @@
+#!/usr/bin/java --source 11
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+public class WC_Sequential {
+
+    static Map<String, Integer> counts = new HashMap<>();
+
+    // args
+    // 0 :: number of reads
+    // 1 :: path to file
+    public static void main(String[] args) {
+        IntStream strm = IntStream.range(0, Integer.parseInt(args[0]));
+        strm.forEach(i -> {
+            String file = args[1];
+            try (Stream<String> stream = Files.lines(Paths.get(file), StandardCharsets.ISO_8859_1)) {
+                consumeLine(stream.collect(Collectors.joining()));
+            } catch (IOException e) {
+                throw new IllegalStateException("File IO error");
+            }
+        });
+
+        System.out.println(counts.get("god"));
+    }
+
+    private static void consumeLine(String line) {
+        StringTokenizer tokenizer = new StringTokenizer(line, " ");
+
+        while(tokenizer.hasMoreTokens()) {
+            String token = tokenizer.nextToken();
+            counts.merge(token, 1, Integer::sum);
+        }
+    }
+}

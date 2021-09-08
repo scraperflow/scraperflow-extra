@@ -1,0 +1,12 @@
+start:
+- f: echo
+  put: x
+  value: "world"
+
+- f: echo
+  log: "hello {x}"
+  goTo: other
+
+other:
+- f: echo
+  log: "hello {x}"

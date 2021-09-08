@@ -1,0 +1,91 @@
+plugins {
+    id 'jacoco'
+    id 'java-library'
+    id 'java-library-distribution'
+    id("de.jjohannes.extra-java-module-info") version "0.1"
+}
+
+extraJavaModuleInfo {
+    module("commons-logging-1.2.jar", "commons.logging", "1.2") {}
+    module("javax.servlet-api-3.1.0.jar", "javax.servlet.api", "3.1.0") {
+        exports "javax.servlet.http"
+        exports "javax.servlet"
+    }
+    module("jsoup-1.12.1.jar", "org.jsoup", "1.12.1") {
+        exports "org.jsoup"
+        exports "org.jsoup.nodes"
+        exports "org.jsoup.select"
+    }
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+dependencies {
+    implementation project(':scraperflow-nodes-dev')
+    implementation project(':scraperflow-nodes-unstable')
+}
+
+plugins.withType(JavaPlugin).configureEach {
+    java {
+        modularity.inferModulePath = true
+    }
+}
+
+
+subprojects {
+    configurations {
+        providedCompile
+    }
+
+    afterEvaluate {
+        dependencies {
+            providedCompile 'com.github.scraperflow.scraperflow:api:master-SNAPSHOT'
+
+            testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.1'
+            testImplementation 'org.junit.jupiter:junit-jupiter-params:5.6.1'
+            testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+        }
+
+        compileJava {
+            sourceSets.main.compileClasspath += configurations.providedCompile
+        }
+    }
+
+    group = 'org.scraper'
+
+    plugins.withType(JavaPlugin).configureEach {
+        java {
+            modularity.inferModulePath = true
+        }
+    }
+
+    tasks.withType(Test).configureEach {
+        useJUnitPlatform()
+    }
+}
+
+// merge coverage
+apply from: 'gradle/jacoco-merge.gradle'
+
+// local install
+task installLocal(type: Copy) {
+    def homePath = System.properties['user.home']
+    from("${buildDir}/install/scraperflow-nodes/lib")
+    into("${homePath}/opt/lib/scraperflow/var")
+    include('*.jar')
+}
+installLocal.dependsOn(installDist);
+
+
+task distribute(type: Zip) {
+    archiveFileName = "bundle.zip"
+    destinationDirectory = file("$buildDir/dist")
+
+    from "$buildDir/install/scraperflow-nodes/lib"
+}
+distribute.dependsOn(installDist);

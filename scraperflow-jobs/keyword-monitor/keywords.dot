@@ -1,0 +1,60 @@
+digraph G {
+	subgraph "cluster_keywords" {
+		style=filled;
+		color=grey;
+		label = "keywords";
+
+		subgraph "cluster_matchKeyword" {
+			style=filled;
+			color=lightgrey;
+			node [style=filled,color=white];
+			"keywords.matchKeyword.0" [shape=rectangle, label="StringContains\n<0>"]; 
+			label = "matchKeyword";
+		}
+		subgraph "cluster_getPage" {
+			style=filled;
+			color=lightgrey;
+			node [style=filled,color=white];
+			"keywords.getPage.0" [shape=rectangle, label="IntToString\n<0>"]; "keywords.getPage.1" [shape=rectangle, label="HttpRequest\n<1>"]; 
+			label = "getPage";
+		}
+		subgraph "cluster_match" {
+			style=filled;
+			color=lightgrey;
+			node [style=filled,color=white];
+			"keywords.match.0" [shape=rectangle, label="Telegram\n<0>"]; 
+			label = "match";
+		}
+		subgraph "cluster_start" {
+			style=filled;
+			color=lightgrey;
+			node [style=filled,color=white];
+			"keywords.start.0" [shape=rectangle, label="IntRange\n<0>"]; 
+			label = "start";
+		}
+		subgraph "cluster_checkLink" {
+			style=filled;
+			color=lightgrey;
+			node [style=filled,color=white];
+			"keywords.checkLink.4" [shape=rectangle, label="IfThenElse\n<4>"]; "keywords.checkLink.1" [shape=rectangle, label="HtmlCssQuery\n<1>"]; "keywords.checkLink.3" [shape=rectangle, label="BooleanOp\n<3>"]; "keywords.checkLink.0" [shape=rectangle, label="HtmlCssQuery\n<0>"]; "keywords.checkLink.2" [shape=rectangle, label="MapJoin\n<2>"]; 
+			label = "checkLink";
+		}
+		subgraph "cluster_processPage" {
+			style=filled;
+			color=lightgrey;
+			node [style=filled,color=white];
+			"keywords.processPage.0" [shape=rectangle, label="HtmlCssQuery\n<0>"]; 
+			label = "processPage";
+		}
+	}
+"keywords.start.0" -> "keywords.getPage.0" [ xlabel="stream",style=dashed,color=red]
+"keywords.checkLink.4" -> "keywords.match.0" [ xlabel="true",]
+"keywords.getPage.0" -> "keywords.getPage.1" [ xlabel="",]
+"keywords.getPage.1" -> "keywords.processPage.0" [ xlabel="",]
+"keywords.checkLink.1" -> "keywords.checkLink.2" [ xlabel="",]
+"keywords.checkLink.3" -> "keywords.checkLink.4" [ xlabel="",]
+"keywords.checkLink.0" -> "keywords.checkLink.1" [ xlabel="",]
+"keywords.checkLink.2" -> "keywords.matchKeyword.0" [ xlabel="map",color=red]
+"keywords.checkLink.2" -> "keywords.checkLink.3" [ xlabel="",]
+"keywords.processPage.0" -> "keywords.checkLink.0" [ xlabel="stream",style=dashed,color=red]
+}

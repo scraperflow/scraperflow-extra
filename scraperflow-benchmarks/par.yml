@@ -1,0 +1,32 @@
+name: par
+globalNodeConfigurations:
+  "/.*/":
+    threads: 4
+    service: "Main"
+
+graphs:
+  start:
+    - type: IntRange
+      from: 1
+      to: "{to}"
+      output: e
+      joinKey: joinkey
+      streamTarget: read
+
+  read:
+    - type: ReadFile
+      inputFile: "content/bible.txt"
+      output: line
+
+    - type: WordCount
+      line: "{line}"
+      put: wordcount
+
+    - type: JoinCounts
+      joinKey: "{joinkey}"
+      map: "{wordcount}"
+      output: all
+
+    - { type: IntToString, integer: "{all@god}", string: out }
+    - type: Output
+      output: "{out}"

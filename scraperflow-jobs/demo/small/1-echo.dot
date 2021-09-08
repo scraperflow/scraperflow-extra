@@ -1,0 +1,24 @@
+digraph G {
+	subgraph "cluster_1-echo" {
+		style=filled;
+		color=grey;
+		label = "1-echo";
+
+		subgraph "cluster_other" {
+			style=filled;
+			color=lightgrey;
+			node [style=filled,color=white];
+			"1-echo.other.0" [shape=rectangle, label="Echo\n<0>"]; 
+			label = "other";
+		}
+		subgraph "cluster_start" {
+			style=filled;
+			color=lightgrey;
+			node [style=filled,color=white];
+			"1-echo.start.0" [shape=rectangle, label="Echo\n<0>"]; "1-echo.start.1" [shape=rectangle, label="Echo\n<1>"]; 
+			label = "start";
+		}
+	}
+"1-echo.start.0" -> "1-echo.start.1" [ xlabel="",]
+"1-echo.start.1" -> "1-echo.other.0" [ xlabel="",]
+}

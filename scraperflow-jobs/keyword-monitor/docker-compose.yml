@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  keyword-monitor:
+    image: albsch/scraperflow:latest
+    restart: always
+    container_name: keyword-monitor
+    volumes:
+      - ./lib:/nodes
+      - ./runtime:/runtime-nodes
+      - .:/rt

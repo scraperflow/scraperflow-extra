@@ -1,0 +1,5 @@
+runs=3
+read-times-list-gen=["1","10","100","250"]
+read-times-list-seq=["1","10","100","1000"]
+read-times-list-par=["1","10","100","1000","10000"]
+resource="content/bible.txt"

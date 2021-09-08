@@ -1,0 +1,3 @@
+rootProject.name = 'scraperflow-nodes'
+
+include 'scraperflow-nodes-dev', 'scraperflow-nodes-unstable'

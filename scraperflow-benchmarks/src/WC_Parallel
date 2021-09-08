@@ -1,0 +1,46 @@
+#!/usr/bin/java --source 11
+
+import java.io.IOException;
+import java.nio.charset.*;
+import java.nio.file.*;
+import java.util.*;
+import java.util.concurrent.locks.*;
+import java.util.stream.*;
+
+public class WC_Parallel {
+
+    static Map<String, Integer> counts = new HashMap<>();
+    static Lock l = new ReentrantLock();
+
+    public static void main(String[] args) {
+        IntStream strm = IntStream.range(0, Integer.parseInt(args[0])).parallel();
+        strm.forEach(i -> {
+            String file = args[1];
+            try (Stream<String> stream = Files.lines(Paths.get(file), StandardCharsets.ISO_8859_1)) {
+                consumeLine(stream.collect(Collectors.joining()));
+            } catch (IOException e) {
+                throw new IllegalStateException("File IO error");
+            }
+        });
+        System.out.println(counts.get("god"));
+    }
+
+    private static void consumeLine(String line) {
+        StringTokenizer tokenizer = new StringTokenizer(line, " ");
+        Map<String, Integer> localState = new HashMap<>();
+
+        while(tokenizer.hasMoreTokens()) {
+            String token = tokenizer.nextToken();
+            localState.merge(token, 1, Integer::sum);
+        }
+
+        l.lock();
+        try {
+            for (String key : localState.keySet()) {
+                counts.merge(key, localState.get(key), Integer::sum);
+            }
+        } finally {
+            l.unlock();
+        }
+    }
+}

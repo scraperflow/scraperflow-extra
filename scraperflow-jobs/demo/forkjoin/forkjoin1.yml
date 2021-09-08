@@ -1,0 +1,61 @@
+start:
+  - f : Map
+    list: [1,2,3,4,5,6,7,8,9,10]
+    putElement: i
+    mapTarget: forking
+
+forking:
+  - f : Fork
+    forkTargets: [A,B] # ordered join on 'join'!
+    joinKey: join
+
+A:
+  - f: echo
+    label: hello
+    put: k
+    value: "Hello"
+    goTo: Join
+
+B:
+  - f : Fork
+    forkTargets: [C,D] # ordered join on 'join2'!
+    joinKey: join2
+
+C:
+  - f: echo
+    put: k2
+    value: "World"
+    goTo: Join2
+
+D:
+  - f: echo
+    put: k2
+    value: "!"
+    goTo: Join2
+
+Join2:
+  - f: Join
+    keys: {k2: klist}
+    joinKey: "{join2}"
+    joinTarget: Flatten
+
+Flatten:
+  - f: FlattenStringList
+    list: "{klist}"
+    string: k
+    goTo: Join
+
+Join:
+  - f: Join
+    keys: {k: res}
+    joinKey: "{join}"
+    joinTarget: Cont
+
+Cont:
+  - f: FlattenStringList
+    list: "{res}"
+    string: out
+
+  - { f: IntToString, integer: "{i}", string: index }
+  - f: Output
+    output: "{index}: {out}"

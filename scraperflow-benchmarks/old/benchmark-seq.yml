@@ -1,0 +1,48 @@
+#!./src/scraper-1.0.0-SNAPSHOT/scraper
+
+name: benchmark
+globalNodeConfigurations:
+  "/.*/":
+    threads: 1
+    service: "Main"
+
+graphs:
+  start:
+    - type: IntRange
+      from: 1
+      to: "{runs}"
+      output: run-number
+      streamTarget: start-run
+
+  start-run:
+    - type: Map
+      list: "{read-times-list}"
+      goTo: bench
+      putElement: times
+
+  bench:
+    - type: exec
+      log: "Word count sequential {times}" 
+      exec: ["time", "-p", "taskset", "-c", "0", "src/WC_Sequential", "{times}", "{resource}"]
+      putErr: wc
+
+    - type: exec
+      log: "Word count parallel {times}"
+      exec: ["time", "-p", "src/WC_Parallel", "{times}", "{resource}"]
+      putErr: wcp
+
+    - type: exec
+      log: "Scraper sequential {times}"
+      exec: ["time", "-p", "taskset", "-c", "0", "src/scraper-1.0.0-SNAPSHOT/scraper", "seq.yml", "arg:to={times}"]
+      putErr: seq
+
+    - type: exec
+      log: "Scraper parallel {times}"
+      exec: ["time", "-p", "src/scraper-1.0.0-SNAPSHOT/scraper", "par.yml", "arg:to={times}"]
+      putErr: par
+
+
+    - { type: IntToString, integer: "{run-number}", string: run-str }
+    - type: WriteLineToFile
+      line: "WC:\n{wc}---\nWCP:\n{wcp}---\nSEQ:\n{seq}---\nPAR:\n{par}"
+      output: "logs/run-{run-str}\\@{times}.log"

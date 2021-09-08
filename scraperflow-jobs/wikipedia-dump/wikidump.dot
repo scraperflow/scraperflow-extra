@@ -1,0 +1,62 @@
+digraph G {
+	subgraph "cluster_wikidump" {
+		style=filled;
+		color=grey;
+		label = "wikidump";
+
+		subgraph "cluster_process-encoded-link" {
+			style=filled;
+			color=lightgrey;
+			node [style=filled,color=white];
+			"wikidump.process-encoded-link.2" [shape=rectangle, label="HttpRequest\n<2>"]; "wikidump.process-encoded-link.0" [shape=rectangle, label="Base64Decode\n<0>"]; "wikidump.process-encoded-link.1" [shape=rectangle, label="LetIn\n<1>"]; "wikidump.process-encoded-link.3" [shape=rectangle, label="HtmlCssQuery\n<3>"]; 
+			label = "process-encoded-link";
+		}
+		subgraph "cluster_store-new-link" {
+			style=filled;
+			color=lightgrey;
+			node [style=filled,color=white];
+			"wikidump.store-new-link.0" [shape=rectangle, label="Log\n<0>"]; 
+			label = "store-new-link";
+		}
+		subgraph "cluster_start" {
+			style=filled;
+			color=lightgrey;
+			node [style=filled,color=white];
+			"wikidump.start.0" [shape=rectangle, label="Let\n<0>"]; "wikidump.start.1" [shape=rectangle, label="Let\n<1>"]; 
+			label = "start";
+		}
+		subgraph "cluster_for-each-link" {
+			style=filled;
+			color=lightgrey;
+			node [style=filled,color=white];
+			"wikidump.for-each-link.0" [shape=rectangle, label="MapFolder\n<0>"]; 
+			label = "for-each-link";
+		}
+		subgraph "cluster_store" {
+			style=filled;
+			color=lightgrey;
+			node [style=filled,color=white];
+			"wikidump.store.1" [shape=rectangle, label="IfThenElse\n<1>"]; "wikidump.store.0" [shape=rectangle, label="StringContains\n<0>"]; 
+			label = "store";
+		}
+		subgraph "cluster_found-new-link" {
+			style=filled;
+			color=lightgrey;
+			node [style=filled,color=white];
+			"wikidump.found-new-link.1" [shape=rectangle, label="WriteLineToFile\n<1>"]; "wikidump.found-new-link.0" [shape=rectangle, label="Base64Encode\n<0>"]; 
+			label = "found-new-link";
+		}
+	}
+"wikidump.store-new-link.0" -> "wikidump.found-new-link.0" [ xlabel="",]
+"wikidump.start.0" -> "wikidump.start.1" [ xlabel="",]
+"wikidump.process-encoded-link.2" -> "wikidump.process-encoded-link.3" [ xlabel="",]
+"wikidump.process-encoded-link.0" -> "wikidump.process-encoded-link.1" [ xlabel="",]
+"wikidump.process-encoded-link.1" -> "wikidump.process-encoded-link.2" [ xlabel="",]
+"wikidump.start.1" -> "wikidump.store-new-link.0" [ xlabel="",]
+"wikidump.store.1" -> "wikidump.store-new-link.0" [ xlabel="true",]
+"wikidump.found-new-link.0" -> "wikidump.found-new-link.1" [ xlabel="",]
+"wikidump.found-new-link.1" -> "wikidump.for-each-link.0" [ xlabel="",]
+"wikidump.for-each-link.0" -> "wikidump.process-encoded-link.0" [ xlabel="map",]
+"wikidump.process-encoded-link.3" -> "wikidump.store.0" [ xlabel="stream",]
+"wikidump.store.0" -> "wikidump.store.1" [ xlabel="",]
+}

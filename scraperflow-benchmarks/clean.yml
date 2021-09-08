@@ -1,0 +1,55 @@
+#!./src/scraper-1.0.0-SNAPSHOT/scraper 
+name: clean
+graphs:
+  start:
+    - type: Echo
+      put: header
+      value: "Files,WC,WCP,SEQ,PAR,SEQGEN,PARGEN"
+
+    - type: PathGlobFile
+      root: logs
+      glob: "glob:**/*.log"
+      filename: resfiles
+      output: files
+
+    - type: map
+      list: "{resfiles}"
+      putElement: resfile
+      goTo: generate-row
+      joinKey: join-rows
+
+  generate-row:
+    - type: regex
+      regex: run-(\d*)@(\d*)\.log
+      groups: {run-no: 1, reads: 2}
+      content: "{resfile}"
+      output: run-info
+
+    - type: readfile
+      inputFile: "logs/{resfile}"
+      output: run-content
+
+    - type: ExtractTimes
+      content: "{run-content}"
+
+    - type: echo
+      put: r
+      value: "{[run-info^0]@reads},{wc},{wcp},{seq},{par},{seqgen},{pargen}"
+
+    - type: joinSingle
+      key: "{r}"
+      output: all-rows
+      joinKey: "{join-rows}"
+      goTo: join-row
+
+  join-row:
+    - type: flattenList
+      flatten: [["{header}"],"{all-rows}"]
+      output: all-rows-with-header
+    - type: stringjoin
+      list: "{all-rows-with-header}"
+      output: output
+      delimiter: "\n"
+    - type: output
+      output: "{output}"
+      

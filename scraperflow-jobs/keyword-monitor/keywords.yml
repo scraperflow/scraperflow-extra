@@ -1,0 +1,54 @@
+start:
+  - { f: IntRange, from: 1, to: "{range}", streamTarget: getPage, output: i }
+
+getPage:
+- { f: IntToString, string: page, integer: "{i}" }
+- { f: HttpRequest, url: "{url}{page}", put: body, goTo: processPage, logLevel: WARN }
+
+processPage:
+# get outer HTML of all title <a>'s
+- type: HtmlCssQuery 
+  html: "{body}"
+  put: "outer-html"
+  elementOutput: OUTERHTML
+  query: "a.storylink"
+  streamTarget: checkLink
+
+checkLink: 
+# extract title and link
+- { f: HtmlCssQuery, html: "{outer-html}", put: "title", elementOutput: TEXT, query: "a" }
+- { f: HtmlCssQuery, html: "{outer-html}", put: "hreflink", elementOutput: ATTR, attr: href, query: "a" }
+
+- f: Map
+  list: "{keywords}"
+  joinKey: join-matches
+  putElement: keyword
+  goTo: matchKeyword
+
+
+matchKeyword: 
+- f: StringContains
+  regex: "{keyword}"
+  content: "[title^0]"
+  output: match
+
+- f: JoinSingle
+  key: "{match}"
+  joinKey: "{join-matches}"
+  output: matches
+
+
+- { f: BooleanOp, op: OR, list: "{matches}", result: matched, defaultValue: false }
+- { f: IfThenElse, condition: "{matched}", trueTarget: match }
+
+
+match:
+- f: Log
+  log: "[title^0] matches ([hreflink^0])"
+
+
+
+
+
+
+

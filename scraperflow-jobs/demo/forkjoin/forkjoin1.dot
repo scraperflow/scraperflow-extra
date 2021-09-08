@@ -1,0 +1,38 @@
+digraph G {
+			
+
+			"forkjoin1.A.0" [shape=rectangle, label="Echo\n"]; 
+
+			"forkjoin1.Cont.2" [shape=rectangle, label="Output\n"]; "forkjoin1.Cont.0" [shape=rectangle, label="FlattenStringList\n"]; "forkjoin1.Cont.1" [shape=rectangle, label="IntToString\n"]; 
+
+			"forkjoin1.B.0" [shape=rectangle, label="Fork\n"]; 
+
+			"forkjoin1.C.0" [shape=rectangle, label="Echo\n"]; 
+
+			"forkjoin1.D.0" [shape=rectangle, label="Echo\n"]; 
+
+			"forkjoin1.start.0" [shape=rectangle, label="Map\n"]; 
+
+			"forkjoin1.Flatten.0" [shape=rectangle, label="FlattenStringList\n"]; 
+
+			"forkjoin1.Join.0" [shape=rectangle, label="Join\n"]; 
+
+			"forkjoin1.forking.0" [shape=rectangle, label="Fork\n"]; 
+
+			"forkjoin1.Join2.0" [shape=rectangle, label="Join\n"]; 
+
+
+"forkjoin1.B.0" -> "forkjoin1.C.0" [ xlabel="fork",style=dashed,]
+"forkjoin1.B.0" -> "forkjoin1.D.0" [ xlabel="fork",style=dashed,]
+"forkjoin1.C.0" -> "forkjoin1.Join2.0" [ xlabel="",]
+"forkjoin1.A.0" -> "forkjoin1.Join.0" [ xlabel="",]
+"forkjoin1.Cont.0" -> "forkjoin1.Cont.1" [ xlabel="",]
+"forkjoin1.D.0" -> "forkjoin1.Join2.0" [ xlabel="",]
+"forkjoin1.Flatten.0" -> "forkjoin1.Join.0" [ xlabel="",]
+"forkjoin1.Cont.1" -> "forkjoin1.Cont.2" [ xlabel="",]
+"forkjoin1.Join.0" -> "forkjoin1.Cont.0" [ xlabel="join",style=dashed,]
+"forkjoin1.Join2.0" -> "forkjoin1.Flatten.0" [ xlabel="join",style=dashed,]
+"forkjoin1.forking.0" -> "forkjoin1.A.0" [ xlabel="fork",style=dashed,]
+"forkjoin1.forking.0" -> "forkjoin1.B.0" [ xlabel="fork",style=dashed,]
+"forkjoin1.start.0" -> "forkjoin1.forking.0" [ xlabel="map",style=dashed,color=red]
+}

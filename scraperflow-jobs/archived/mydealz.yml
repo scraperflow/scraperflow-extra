@@ -1,0 +1,24 @@
+# small price monitor
+
+start:
+- { type: periodic, onPeriod: onPeriod, period: 900000 }
+
+onPeriod:
+- { f: httprequest, url: "https://www.mydealz.de/gruppe/{topic}", put: response }
+# extract every thread box as HTML
+- { f: htmlcssquery, html: "{response}", elementOutput: HTML, query: .threadGrid, put: threads }
+# process each thread individually
+- { f: map, list: "{threads}", mapTarget: thread, putElement: thread }
+
+thread: #extract title and price for each thread
+- { f: htmlcssquery, html: "{thread}", query: .thread-title, put: title }
+- { f: htmlcssquery, html: "{thread}", query: .thread-price, put: price }
+# we don't care if invalid threads (empty title, empty price) crash here
+# try to not send already know deals
+- { f: hash, content: "[title^0]", output: hash }
+- { f: persistentduplicatecheck, persistentStore: store, appendIfNotFound: "{hash}", content: "{hash}" }
+- { f: ifthenelse, condition: "{exists}", falseTarget: sendTelegram }
+
+sendTelegram:
+  - { f: telegram, message: "[price^0] :: [title^0]", recipients: ["{recipient}"], botToken: "{bot-token}" }
+

@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  fefe-archiver:
+    image: albsch/scraperflow:latest
+    restart: always
+    container_name: fefe-archiver
+    volumes:
+      - ./lib:/nodes
+      - ./runtime:/runtime-nodes
+      - .:/rt

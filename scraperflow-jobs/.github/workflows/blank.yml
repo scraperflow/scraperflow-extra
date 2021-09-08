@@ -1,0 +1,36 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        jobid: [ fefe-blog-archiver, erlang-module-dependency-graph, mydealz-feed, wikipedia-dump, monitor ]
+    name: Type check ${{ matrix.jobid }}
+    steps:
+      - uses: actions/checkout@v2                                    
+      - run: sed -i 's/#//g' fefe-blog-archiver/fefe.args # add dummy args "..."
+      - run: sed -i 's/#//g' mydealz-feed/mydealz.args # add dummy args "..."
+        # type check, build cfg and exit
+      - run: ( cd ${{ matrix.jobid }} ; docker run -v "$PWD":/rt/ -v "$PWD"/lib:/nodes -v "$PWD"/ext:/plugins --rm albsch/scraper:latest exit )
+    
+  cfg:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        jobid: [ fefe-blog-archiver, erlang-module-dependency-graph, mydealz-feed, wikipedia-dump, monitor ]
+    name: Control flow graph ${{ matrix.jobid }}
+    steps:
+      - uses: actions/checkout@v2                                    
+      - run: ( cd ${{ matrix.jobid }} ; docker run -v "$PWD":/rt/ -v "$PWD"/lib:/nodes -v "$PWD"/ext:/plugins --rm albsch/scraper:latest cfg disable-typing exit )

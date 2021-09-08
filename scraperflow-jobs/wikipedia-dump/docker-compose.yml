@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  wiki:
+    image: albsch/scraperflow:latest
+    restart: always
+    container_name: wiki
+    volumes:
+      - ./lib:/nodes
+      - .:/rt
+      - ~/srv/wikimedia/:/srv/wikimedia/

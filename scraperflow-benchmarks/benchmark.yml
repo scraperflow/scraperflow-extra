@@ -1,0 +1,105 @@
+#!./src/scraperflow/scraper
+
+name: benchmark
+globalNodeConfigurations:
+  "/.*/":
+    threads: 1
+    service: "Main"
+
+graphs:
+  start:
+    - type: IntRange
+      from: 1
+      to: "{runs}"
+      output: run-number
+      streamTarget: start-run-gen
+
+  start-run-gen:
+    - { type: IntToString, integer: "{run-number}", string: run-str }
+    - type: Map
+      list: "{read-times-list-gen}"
+      goTo: bench-gen
+      joinKey: jk
+      putElement: times
+
+  bench-gen:
+    - type: exec
+      log: "Scraper sequential generic {times}"
+      exec: ["time", "-p", "taskset", "-c", "0", "src/scraper-1.0.0-SNAPSHOT/scraper", "seqgen.yml", "arg:to={times}"]
+      putErr: seq
+
+    - type: exec
+      log: "Scraper parallel generic {times}"
+      exec: ["time", "-p", "src/scraper-1.0.0-SNAPSHOT/scraper", "pargen.yml", "arg:to={times}"]
+      putErr: par
+
+    - type: WriteLineToFile
+      line: "SEQGEN:\n{^seq}---\nPARGEN:\n{^par}"
+      output: "logs/run-{run-str}\\@{times}.log"
+
+    - type: JoinFlow
+      joinKey: "{^jk}"
+      goTo: start-run-seq
+
+
+
+
+  start-run-seq:
+    - type: Map
+      list: "{read-times-list-seq}"
+      goTo: bench-seq
+      joinKey: jk
+      putElement: times-seq
+
+  bench-seq:
+    - type: exec
+      log: "Word count sequential {times-seq}" 
+      exec: ["time", "-p", "taskset", "-c", "0", "src/WC_Sequential", "{times-seq}", "{resource}"]
+      putErr: wc
+
+    - type: exec
+      log: "Scraper sequential {times-seq}"
+      exec: ["time", "-p", "taskset", "-c", "0", "src/scraper-1.0.0-SNAPSHOT/scraper", "seq.yml", "arg:to={times-seq}"]
+      putErr: seq
+
+
+    - type: WriteLineToFile
+      line: "SEQ:\n{^seq}---\nWC:\n{^wc}"
+      output: "logs/run-{run-str}\\@{times-seq}.log"
+
+    - type: JoinFlow
+      joinKey: "{^jk}"
+      goTo: start-run-par
+
+
+
+  start-run-par:
+    - type: Map
+      list: "{read-times-list-par}"
+      goTo: bench-par
+      joinKey: jk
+      putElement: times-par
+
+  bench-par:
+    - type: exec
+      log: "Scraper parallel {times-par}"
+      exec: ["time", "-p", "src/scraper-1.0.0-SNAPSHOT/scraper", "par.yml", "arg:to={times-par}"]
+      putErr: par
+
+    - type: exec
+      log: "Word count parallel {times-par}"
+      exec: ["time", "-p", "src/WC_Parallel", "{times-par}", "{resource}"]
+      putErr: wcp
+
+
+    - type: WriteLineToFile
+      line: "PAR:\n{^par}---\nWCP:\n{^wcp}"
+      output: "logs/run-{run-str}\\@{times-par}.log"
+
+    - type: JoinFlow
+      joinKey: "{^jk}"
+      goTo: finish
+
+  finish:
+    - type: log
+      log: "Finish benchmark"

@@ -1,0 +1,9 @@
+start:
+- f: Map
+  list: ["a", "b", "c"]
+  putElement: name
+  mapTarget: create
+
+create:
+- f: exec
+  exec: ["mkdir", "-p", "{name}"]

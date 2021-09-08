@@ -1,0 +1,56 @@
+---
+name: wikidump
+graphs:
+
+  start:
+      # root site
+    - { type: Let, value: "https://en.wikipedia.org", put: "root" }
+    - { type: Let, value: "/wiki/Computer_science", put: "new-link", goTo: store-new-link}
+
+  store-new-link:
+    - { type: log, goTo: found-new-link }
+
+  # stores a link into a folder which is monitored for processing links
+  found-new-link:
+    - { type: Base64Encode, encode: "{new-link}", output: enclink }
+
+    # change link collection folder
+    - { type: WriteLineToFile, output: "srv/wikimedia/links/{enclink}", line: "{enclink}", overwrite: true, goTo: for-each-link }
+
+  # processes each link in the folder
+  for-each-link:
+    - type: MapFolder
+      folder: "srv/wikimedia/links/"
+      putFileName: link
+      fileTarget: process-encoded-link
+
+  process-encoded-link:
+    - { type: Base64Decode, decode: "{link}", output: decoded-link }
+    # allow link to be written again
+    - { type: LetIn, keys: [root, decoded-link] }
+
+    - type: HttpRequest
+      holdOnReservation: 5000
+      # change static html output folder
+      cache: "srv/wikimedia/dump/"                         
+      url: "{root}{decoded-link}"
+      put: html
+
+    - type: HtmlCssQuery
+      html: "{html}"
+      query: "a[href]"
+      put: new-link
+      collect: false
+      streamTarget: store
+      elementOutput: "ATTR"
+      attr: "href"
+
+  store:
+    # filter for valid links
+    - type: StringContains
+      regex: "\\^\\/wiki\\/\\[\\^:\\]+$"
+      content: "{new-link}"
+      output: filter
+
+    - { type: IfThenElse, condition: "{filter}", trueTarget: store-new-link }
+

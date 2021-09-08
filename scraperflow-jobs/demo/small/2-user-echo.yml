@@ -1,0 +1,8 @@
+start:
+- f: input
+  put: x
+  streamTarget: echo
+
+echo:
+- f: output
+  output: "{x}"

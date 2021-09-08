@@ -1,0 +1,10 @@
+library("ggplot2")
+library("reshape2")
+
+mdat1 <- read.csv("data.csv")
+mdat2 <- melt(mdat1, id.vars="Files", variable.name="Method")
+mdat3 <- na.omit(mdat2)
+
+plot = ggplot(data=mdat3, aes(Files, value, col=Method)) + geom_point(aes(x = Files, y = value, color=Method)) + scale_x_continuous(trans='log10') + geom_smooth(data=mdat3, aes(x=Files, y=value, color=Method), se = F) + ylab("Memory in kb") + theme(legend.position="bottom")
+ggsave("g.png")
+warnings()

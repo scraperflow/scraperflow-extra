@@ -1,0 +1,20 @@
+plugins {
+    id 'java-library'
+    id 'java-library-distribution'
+    id("de.jjohannes.extra-java-module-info")
+}
+
+version = '0.1.0'
+
+extraJavaModuleInfo {
+    module("jsoup-1.12.1.jar", "org.jsoup", "1.12.1") {
+        exports "org.jsoup"
+        exports "org.jsoup.nodes"
+        exports "org.jsoup.select"
+    }
+}
+
+dependencies {
+    implementation group: 'org.jsoup', name: 'jsoup', version: '1.12.1'
+}
+

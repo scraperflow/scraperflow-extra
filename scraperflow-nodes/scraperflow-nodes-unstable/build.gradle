@@ -1,0 +1,12 @@
+plugins {
+    id 'java-library'
+    id 'java-library-distribution'
+}
+
+version = '0.1.0'
+
+
+dependencies {
+    // core
+    providedCompile 'com.github.scraperflow.scraperflow:core:master-SNAPSHOT'
+}
