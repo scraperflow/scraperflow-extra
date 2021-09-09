@@ -6,6 +6,7 @@
 /**/build/
 /**/builds/
 /**/classes/
+**/**/*.class
 
 ### intellij
 .idea
