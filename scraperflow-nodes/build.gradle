@@ -30,13 +30,6 @@ dependencies {
     implementation project(':scraperflow-nodes-unstable')
 }
 
-plugins.withType(JavaPlugin).configureEach {
-    java {
-        modularity.inferModulePath = true
-    }
-}
-
-
 subprojects {
     configurations {
         providedCompile
@@ -57,12 +50,6 @@ subprojects {
     }
 
     group = 'org.scraper'
-
-    plugins.withType(JavaPlugin).configureEach {
-        java {
-            modularity.inferModulePath = true
-        }
-    }
 
     tasks.withType(Test).configureEach {
         useJUnitPlatform()
