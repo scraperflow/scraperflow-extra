@@ -1,0 +1,87 @@
+start:
+  - f: Periodic
+    period: 30000
+    onPeriod: scan
+
+scan:
+  - f: ExecStream
+    exec: ["journalctl", "-u", "sshd", "--since", "5min ago"]
+    put: line
+    streamTarget: line
+    workingDirectory: .
+
+line:
+  - f: StringContains
+    regex: "invalid user"
+    content: "{line}"
+    output: flag
+
+  - f: IfThenElse
+    condition: "{flag}"
+    trueTarget: ban
+    falseTarget: check-fatal
+
+check-fatal:
+  - f: StringContains
+    regex: "fatal: Timeout"
+    content: "{line}"
+    output: flag-fatal
+
+  - f: IfThenElse
+    condition: "{flag-fatal}"
+    trueTarget: ban-fatal
+
+ban-fatal:
+  - f: Regex
+    regex: "fatal: Timeout before authentication for (.*)? port"
+    content: "{line}"
+    groups:
+      ip: 1
+    output: match
+  - f: let
+    put: user
+    value: pre-auth
+  - f: Hash
+    content: "{line}"
+    output: hash
+    goTo: bann
+
+ban:
+  - f: Regex
+    regex: invalid user (.*?)\s(.*?) port
+    content: "{line}"
+    groups:
+      user: 1
+      ip: 2
+    output: match
+  - f: let
+    put: user
+    value: "{[match^0]@user}"
+  - f: Hash
+    content: "{line}"
+    output: hash
+    goTo: bann
+
+bann:
+  - f: IpBanDb
+    attemps: 0
+    bandb: "ban.db/"
+    hash: "{hash}"
+    user: "{user}"
+    ip: "{[match^0]@ip}"
+    ban: ban-effect
+
+ban-effect:
+  - f: let
+    put: cmd
+    value: ["iptables", "-A", "INPUT", "-s", "{[match^0]@ip}","-j", "DROP"]
+
+  - f: WriteLineToFile
+    output: log/server1
+    line: "server: BAN {[match^0]@ip}"
+
+  - f: log
+    log: "{cmd}"
+
+  - f: exec
+    exec: "{cmd}"

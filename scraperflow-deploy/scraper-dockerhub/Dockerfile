@@ -5,7 +5,6 @@ WORKDIR /scraperflow-src
 RUN /scraperflow-src/gradlew disttar
 RUN mkdir -p /scraperflow-src/out
 RUN tar xf /scraperflow-src/build/distributions/scraper*.tar -C /scraperflow-src/out
-RUN rm /scraperflow-src/out/scraper*/lib/test-framework*.jar
 RUN cp /scraperflow-src/out/scraper*/lib/*.jar /bin
 WORKDIR /rt
 RUN rm -rf /scraperflow-src
