@@ -1,0 +1,12 @@
+name: mynodespec
+
+graphs:
+  start:
+    - type: MyNode
+      myInput: "helloWorld"
+      myOutput: result
+
+    # Assert can be used to check for expected output
+    - type: Assert
+      assertMap:
+        result: "helloWorld"

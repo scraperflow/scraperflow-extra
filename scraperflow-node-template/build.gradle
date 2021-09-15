@@ -1,0 +1,39 @@
+plugins {
+    id 'java-library'
+    id 'java-library-distribution'
+    // id("de.jjohannes.extra-java-module-info") version "0.4"
+}
+
+version = '0.1.0'
+group = 'org.scraper'
+
+// If there are dependencies, which are not java modules yet, make them modules here
+// extraJavaModuleInfo {}
+
+configurations {
+    providedCompile
+}
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    providedCompile 'com.github.scraperflow.scraperflow:core:master-SNAPSHOT'
+
+    testImplementation 'com.github.scraperflow.scraperflow:test-framework:master-SNAPSHOT'
+    testImplementation 'com.github.scraperflow.scraperflow:core-parsers:master-SNAPSHOT'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+compileJava {
+    sourceSets.main.compileClasspath += configurations.providedCompile
+}
