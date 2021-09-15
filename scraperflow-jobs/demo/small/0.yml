@@ -1,3 +1,3 @@
 start:
-  - f: echo
+  - f: log
     log: hello world

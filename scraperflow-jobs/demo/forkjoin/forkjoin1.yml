@@ -1,8 +1,8 @@
 start:
   - f : Map
-    list: [1,2,3,4,5,6,7,8,9,10]
+    list: [1,2,3,4,5,6,7,8,9,10] # all elements in this list will be processed independently
     putElement: i
-    mapTarget: forking
+    goTo: forking
 
 forking:
   - f : Fork
@@ -10,7 +10,7 @@ forking:
     joinKey: join
 
 A:
-  - f: echo
+  - f: Let
     label: hello
     put: k
     value: "Hello"
@@ -22,13 +22,13 @@ B:
     joinKey: join2
 
 C:
-  - f: echo
+  - f: Let
     put: k2
     value: "World"
     goTo: Join2
 
 D:
-  - f: echo
+  - f: Let
     put: k2
     value: "!"
     goTo: Join2
@@ -37,7 +37,7 @@ Join2:
   - f: Join
     keys: {k2: klist}
     joinKey: "{join2}"
-    joinTarget: Flatten
+    goTo: Flatten
 
 Flatten:
   - f: FlattenStringList
@@ -49,7 +49,7 @@ Join:
   - f: Join
     keys: {k: res}
     joinKey: "{join}"
-    joinTarget: Cont
+    goTo: Cont
 
 Cont:
   - f: FlattenStringList

@@ -11,8 +11,8 @@ bot-token="..."
 recipient="..."
 ```
 
-To start this workflow, execute `scraperflow` in the same directory as `fefe.yf`. 
-If it is not the only `yf` file, execute `scraperflow fefe.yf`instead.
+To start this workflow, execute `scraperflow` in the same directory as `fefe.yml`. 
+If it is not the only `yml` file, execute `scraperflow fefe.yml`instead.
 
 # Dependencies
 

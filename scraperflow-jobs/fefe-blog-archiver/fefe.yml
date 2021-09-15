@@ -4,79 +4,55 @@ start:
     onPeriod: on-period
     period: 4800000
     service: fefe
-    threads: 10
 
 
 on-period:
   - type: HttpRequest
     url: "http://blog.fefe.de"
-    put: "response"
-
 
   - type: HtmlCssQuery
-    html: "{response}"
     query: "body>ul>li"
     elementOutput: HTML
-    put: result
 
   - type: Map
-    list: "{result}"
-    putElement: element
     goTo: process-post
 
 
 process-post:
   - type: StringReplace
-    content: "{element}"
-    output: nop1
     replace: "<p.*?>"
     with: "\n"
 
   - type: StringReplace
-    content: "{nop1}"
     replace: "</p>"
     with: "\n"
-    output: nop
 
   - type: StringReplace
-    content: "{nop}"
     replace: "<a\\shref=\"(.*?)\">(.*?)<\\/a>"
     with: "$2 ($1)"
-    output: extlinks
 
   - type: StringReplace
-    content: "{extlinks}"
     replace: "\\?ts="
     with: "http://blog.fefe.de?ts="
-    output: intlinks
 
   - type: StringReplace
-    content: "{intlinks}"
     replace: "^\\[l\\]\\s"
     with: ""
-    output: escape
 
   - type: StringReplace
-    content: "{escape}"
     replace: "<blockquote.*?>"
     with: "---"
-    output: blocks
 
   - type: StringReplace
-    content: "{blocks}"
     replace: "</blockquote>"
     with: "---\n"
-    output: blockend
 
   - type: StringReplace
-    content: "{blockend}"
     replace: "(\\(.*?\\))\\s([\\s\\S]*)"
     with: "$2\n$1"
-    output: escape2
 
     # correctly link ptrace links
   - type: StringReplace
-    content: "{escape2}"
     replace: "\\(//ptrace"
     with: "\\(http://ptrace"
     output: cleantxt
@@ -89,10 +65,8 @@ process-post:
     persistentStore: "store"
     appendIfNotFound: "{hash}"
     content: "{hash}"
-    result: exists
 
   - type: IfThenElse
-    condition: "{exists}"
     trueTarget: duplicate-post
     falseTarget: not-duplicate-post
 
@@ -106,3 +80,4 @@ not-duplicate-post:
     recipients:
       - "{recipient}"
     botToken: "{bot-token}"
+

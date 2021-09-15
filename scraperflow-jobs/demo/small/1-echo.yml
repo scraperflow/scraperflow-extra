@@ -1,12 +1,12 @@
 start:
-- f: echo
+- f: let
   put: x
   value: "world"
 
-- f: echo
+- f: log
   log: "hello {x}"
   goTo: other
 
 other:
-- f: echo
+- f: log
   log: "hello {x}"
